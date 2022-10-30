@@ -3,8 +3,7 @@ This repository is based off of the sample application for the [MongoDB and Expr
 
 ## How To Run
 
-Atlas URI connection parameter in `server/config.env` has our Connection String:
-```
+Atlas URI connection parameter in `server/config.env` has our Connection String.
 
 Start the Express server:
 ```
