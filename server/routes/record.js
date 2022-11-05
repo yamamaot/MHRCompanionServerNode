@@ -1,9 +1,13 @@
+const bodyParser = require('body-parser');
+const { request } = require('express');
 const express = require('express');
 
 // recordRoutes is an instance of the express router.
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /listings.
 const recordRoutes = express.Router();
+
+recordRoutes.use(bodyParser.json());
 
 // This will help us connect to the database
 const dbo = require('../db/conn');
@@ -24,6 +28,61 @@ recordRoutes.route('/hitzones').get(async function (_req, res) {
       }
     });
 });
+
+
+recordRoutes.route('/motionvalues').get(async function (_req, res) {
+  const dbConnect = dbo.getDb();
+
+  dbConnect
+    .collection('WeaponCollection')
+    .find({})
+    .limit(50)
+    .toArray(function (err, result) {
+      if (err) {
+        res.status(400).send('Error fetching MVs!');
+      } else {
+        res.json(result);
+      }
+    });
+});
+
+recordRoutes.route('/hzsearch/:id').get(async function (_req, res) {
+  console.log(_req.params.id);
+  const requestID = parseInt(_req.params.id);
+  const dbConnect = dbo.getDb();
+  const hitzones = dbConnect.collection("HitzoneCollection");
+  const query = { MonsterID: requestID };
+
+  const cursor = hitzones.find(query);
+
+  cursor.toArray(function (err, result) {
+    if (err) {
+      res.status(400).send('Error fetching hitzones!');
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+recordRoutes.route('/mvsearch/:id').get(async function (_req, res) {
+  console.log(_req.params.id);
+  const requestID = parseInt(_req.params.id);
+  const dbConnect = dbo.getDb();
+  const weapons = dbConnect.collection("WeaponCollection");
+  const query = { MoveID: requestID };
+
+  const cursor = weapons.find(query);
+
+  cursor.toArray(function (err, result) {
+    if (err) {
+      res.status(400).send('Error fetching weapons!');
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+
 
 // This section will help you create a new record.
 // recordRoutes.route('/listings/recordSwipe').post(function (req, res) {
