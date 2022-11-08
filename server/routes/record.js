@@ -12,7 +12,7 @@ recordRoutes.use(bodyParser.json());
 // This will help us connect to the database
 const dbo = require('../db/conn');
 
-// This section will help you get a list of all the records.
+// This section will help you get a list of all the hitzone records.
 recordRoutes.route('/hitzones').get(async function (_req, res) {
   const dbConnect = dbo.getDb();
 
@@ -30,6 +30,23 @@ recordRoutes.route('/hitzones').get(async function (_req, res) {
 });
 
 
+//this route simply returns monster names and ID in order to make building the dropdown easier.
+recordRoutes.route('/hitzonenames').get(async function (_req, res) {
+  const dbConnect = dbo.getDb();
+  const hitzones = dbConnect.collection("HitzoneCollection");
+  const projection = { _id: 0, MonsterName: 1, MonsterID: 1 };
+  const cursor = hitzones.find().project(projection);
+
+  cursor.toArray(function (err, result) {
+    if (err) {
+      res.status(400).send('Error fetching hitzones!');
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+//this route returns all motion values
 recordRoutes.route('/motionvalues').get(async function (_req, res) {
   const dbConnect = dbo.getDb();
 
@@ -45,6 +62,7 @@ recordRoutes.route('/motionvalues').get(async function (_req, res) {
       }
     });
 });
+
 
 recordRoutes.route('/hzsearch/:id').get(async function (_req, res) {
   console.log(_req.params.id);
@@ -70,8 +88,9 @@ recordRoutes.route('/mvsearch/:id').get(async function (_req, res) {
   const dbConnect = dbo.getDb();
   const weapons = dbConnect.collection("WeaponCollection");
   const query = { MoveID: requestID };
+  const projection = { _id: 0 };
 
-  const cursor = weapons.find(query);
+  const cursor = weapons.find(query).project(projection);
 
   cursor.toArray(function (err, result) {
     if (err) {
@@ -82,6 +101,25 @@ recordRoutes.route('/mvsearch/:id').get(async function (_req, res) {
   });
 });
 
+
+recordRoutes.route('/mvsearch2/:wep').get(async function (_req, res) {
+  console.log(_req.params.wep);
+  const requestID = _req.params.wep.toString();
+  const dbConnect = dbo.getDb();
+  const weapons = dbConnect.collection("WeaponCollection");
+  const query = { WeaponName: requestID };
+  const projection = { _id: 0 };
+
+  const cursor = weapons.find(query).project(projection);
+
+  cursor.toArray(function (err, result) {
+    if (err) {
+      res.status(400).send('Error fetching weapons!');
+    } else {
+      res.json(result);
+    }
+  });
+});
 
 
 // This section will help you create a new record.
